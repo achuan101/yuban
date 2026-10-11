@@ -1,10 +1,10 @@
 // Random samples from each source module; source order is NOT calibrated difficulty.
 const shuffle=(rows,rng)=>{const copy=[...rows];for(let i=copy.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[copy[i],copy[j]]=[copy[j],copy[i]]}return copy}
-export function createSession(start=100){return {start,queue:null,current:null,responses:[],used:new Set(),done:false,total:30}}
+export function createSession(start=100){return {start,queue:null,current:null,responses:[],used:new Set(),done:false,total:5}}
 export function nextQuestion(session,rows,rng=Math.random){
  if(session.current)return session.current
  if(session.done)return null
- if(!session.queue){const modules=[...new Set(rows.map(r=>r.source_category))];session.population=Object.fromEntries(modules.map(m=>[m,rows.filter(r=>r.source_category===m).length]));const samples=modules.map(m=>shuffle(rows.filter(r=>r.source_category===m),rng).slice(0,3).sort((a,b)=>(b.source_frequency_count||0)-(a.source_frequency_count||0)));session.queue=Array.from({length:3},(_,round)=>samples.map(s=>s[round])).flat().filter(Boolean);session.total=session.queue.length}
+ if(!session.queue){const modules=[...new Set(rows.map(r=>r.source_category))];session.population=Object.fromEntries(modules.map(m=>[m,rows.filter(r=>r.source_category===m).length]));session.queue=shuffle(modules,rng).slice(0,session.total).map(m=>shuffle(rows.filter(r=>r.source_category===m),rng).slice(0,8).sort((a,b)=>(b.source_frequency_count||0)-(a.source_frequency_count||0))[0]).filter(Boolean);session.total=session.queue.length}
  const item=session.queue[session.responses.length];if(!item){session.done=true;return null}
  const pool=shuffle(rows.filter(r=>r.source_category===item.source_category&&r.meaning!==item.meaning),rng),meanings=new Set([item.meaning]),distractors=[]
  for(const r of pool){if(meanings.has(r.meaning))continue;meanings.add(r.meaning);distractors.push(r);if(distractors.length===3)break}
