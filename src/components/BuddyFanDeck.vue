@@ -46,6 +46,9 @@ const activeBuddy = computed(() => {
 })
 
 function onCardHover(index) {
+  if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(hover: none)').matches) {
+    return
+  }
   hoverIndex.value = index
 }
 
@@ -55,6 +58,7 @@ function onCardLeave() {
 
 function selectCard(buddy) {
   selectedId.value = buddy.id
+  hoverIndex.value = null
   emit('select', buddy)
 }
 
@@ -176,8 +180,6 @@ function getCardStyle(index) {
         role="button"
         :aria-label="`${buddy.name} - ${buddy.category}`"
         @mouseenter="onCardHover(index)"
-        @focus="onCardHover(index)"
-        @blur="onCardLeave"
         @click="selectCard(buddy)"
         @keydown.enter="selectCard(buddy)"
         @keydown.space.prevent="selectCard(buddy)"
@@ -313,12 +315,17 @@ function getCardStyle(index) {
     inset 0 1px 1px rgba(255, 255, 255, 0.45),
     0 16px 36px rgba(0, 0, 0, 0.45);
   transform-origin: center 85%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+  -webkit-tap-highlight-color: transparent;
   transition:
     transform 0.48s cubic-bezier(0.34, 1.56, 0.64, 1),
     filter 0.35s ease,
     opacity 0.35s ease,
     border-color 0.3s ease;
-  will-change: transform, filter, opacity;
+  will-change: transform;
   outline: none;
 }
 

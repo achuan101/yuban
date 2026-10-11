@@ -503,7 +503,8 @@ defineProps({
   width: 100%;
   height: 100%;
   overflow: visible;
-  filter: drop-shadow(0 16px 20px rgba(0, 0, 0, 0.28));
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
   transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .clay-svg:hover {
@@ -512,13 +513,16 @@ defineProps({
 .eyes-group {
   animation: eye-idle 4.5s ease-in-out infinite;
   transform-origin: center;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
 }
 @keyframes eye-idle {
   0%, 100% {
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
   50% {
-    transform: translateY(-1.5px);
+    transform: translate3d(0, -1.5px, 0);
   }
 }
 </style>

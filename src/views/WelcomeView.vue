@@ -345,6 +345,7 @@ onBeforeUnmount(() => {
   position: relative;
   width: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
   background-color: #090a10;
   color: #f1f5f9;
   overflow-x: hidden;
@@ -356,6 +357,9 @@ onBeforeUnmount(() => {
   position: absolute;
   border-radius: 50%;
   filter: blur(120px);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
   pointer-events: none;
   z-index: 0;
   opacity: 0.45;
@@ -397,6 +401,7 @@ onBeforeUnmount(() => {
   height: 84px;
   padding: 0 max(24px, calc((100vw - 1200px) / 2));
   background: rgba(9, 10, 16, 0.82);
+  -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
@@ -1113,6 +1118,17 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 680px) {
+  .ambient-glow {
+    filter: blur(60px);
+  }
+  .glow-top {
+    width: 360px;
+    height: 300px;
+  }
+  .glow-right, .glow-bottom {
+    width: 300px;
+    height: 300px;
+  }
   .welcome-nav {
     height: 70px;
   }
