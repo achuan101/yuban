@@ -1,36 +1,35 @@
 import { WORD_BANK } from '@/data/wordbank'
 
 const ABSTRACT_HINTS = [
-  'resilience', 'empathy', 'metaphor', 'perspective', 'abstract',
-  'responsibility', 'opportunity', 'community', 'initiative', 'sustainable',
-  'confidence', 'memory', 'environment', 'challenge', 'collaborate',
+  'understand', 'remember', 'problem', 'beautiful', 'important',
+  'trouble', 'chance', 'afraid', 'question', 'heart',
 ]
 
 const REPLIES = {
   1: [
-    'Nice! Can you say it again slowly?',
-    'I like that. What else do you like?',
-    'Good try! Let’s talk about food. Do you like rice?',
+    'Good. I like that. What do you want?',
+    'Come and see. Do you know this?',
+    'Take your time. Look, and tell me.',
   ],
   2: [
-    'That sounds fun. What do you usually do after school?',
-    'Thanks for sharing. How is the weather today?',
-    'Cool! Tell me one thing about your weekend.',
+    'Please tell me about your day at home.',
+    'Sorry, I want to help. Do you love your work?',
+    'People need money and a name. What is your name?',
   ],
   3: [
-    'Interesting point. How do you practice English every day?',
-    'I suggest we try a short role-play. Ready?',
-    'You’re doing well. What challenge do you want to improve?',
+    'Hello! Are you happy today with your family?',
+    'Listen. Do you understand your friend?',
+    'I remember your mother and your house.',
   ],
   4: [
-    'From my perspective, that’s a thoughtful answer. Can you give one example?',
-    'Great. How does your community celebrate special days?',
-    'I encourage you to use one new word in your next sentence.',
+    'I hope school is not a problem tomorrow.',
+    'Do you like music? Drink some water and eat.',
+    'Call the doctor if you need to change the plan.',
   ],
   5: [
-    'I appreciate your idea. How can we collaborate to make practice more sustainable?',
-    'That’s a strong perspective. What metaphor would you use for learning?',
-    'Empathy helps conversations. Can you share a moment when you felt understood?',
+    'This question is important. What is the reason?',
+    'Do not be afraid. Sleep well and speak slowly.',
+    'This week you have a chance. Is it easy or different?',
   ],
 }
 
@@ -40,7 +39,7 @@ function findTriggerWord(text) {
   if (hit) return WORD_BANK.find((w) => w.word === hit) || { word: hit, meaning: hit }
   // 学生问「什么意思」时，从最近常见抽象词挑一个演示
   if (/什么意思|看不懂|什么是|what does|mean\?|explain/i.test(text)) {
-    return WORD_BANK.find((w) => w.word === 'empathy')
+    return WORD_BANK.find((w) => w.word === 'understand')
   }
   return null
 }

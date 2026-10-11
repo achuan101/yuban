@@ -2,6 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useLearnerStore } from '@/stores/learner'
+import { WORD_BANK } from '@/data/wordbank'
 import {
   buildVisualAid,
   detectVisualNeed,
@@ -96,19 +97,15 @@ async function send(text) {
 
 function requestVisual() {
   const lastAi = [...messages.value].reverse().find((m) => m.role === 'ai')
-  const wordGuess = lastAi?.text.match(/\b([a-zA-Z]{5,})\b/)?.[1] || 'empathy'
-  const meaningMap = {
-    empathy: '共情',
-    resilience: '韧性',
-    perspective: '视角',
-    community: '社区',
-    opportunity: '机会',
-  }
-  const meaning = meaningMap[wordGuess.toLowerCase()] || '相关概念'
-  visual.value = buildVisualAid(wordGuess.toLowerCase(), meaning)
-  learner.markVisualWord(wordGuess.toLowerCase())
-  if (!newWords.value.includes(wordGuess.toLowerCase())) {
-    newWords.value.push(wordGuess.toLowerCase())
+  const wordGuess = (lastAi?.text.match(/\b([a-zA-Z]{3,})\b/g) || [])
+    .map((w) => w.toLowerCase())
+    .reverse()
+    .map((w) => WORD_BANK.find((item) => item.word === w))
+    .find(Boolean) || WORD_BANK.find((item) => item.word === 'understand')
+  visual.value = buildVisualAid(wordGuess.word, wordGuess.meaning)
+  learner.markVisualWord(wordGuess.word)
+  if (!newWords.value.includes(wordGuess.word)) {
+    newWords.value.push(wordGuess.word)
   }
 }
 

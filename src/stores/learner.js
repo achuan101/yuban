@@ -84,8 +84,8 @@ export const useLearnerStore = defineStore('learner', {
       // 年龄粗估临时等级
       const map = { child: 1, teen: 2, adult: 3 }
       this.level = map[this.profile.ageGroup] || 2
-      this.cefr = this.level === 1 ? 'Pre-A1' : this.level === 2 ? 'A1' : 'A2'
-      this.levelLabel = this.level === 1 ? '基础日常' : this.level === 2 ? '常见生活' : '进阶日常'
+      this.cefr = this.level === 1 ? 'A1' : this.level === 2 ? 'A1+' : 'A2'
+      this.levelLabel = this.level === 1 ? '最常用口语' : this.level === 2 ? '高频生活词' : '常见交流词'
       this.weakTags = ['跳过测评，将加速校准']
       this.placementSkipped = true
       this.placementDone = false
@@ -97,11 +97,11 @@ export const useLearnerStore = defineStore('learner', {
       if (next === this.level) return
       this.level = next
       const labels = {
-        1: ['Pre-A1', '基础日常'],
-        2: ['A1', '常见生活'],
-        3: ['A2', '进阶日常'],
-        4: ['A2+', '场景扩展'],
-        5: ['B1-', '高频进阶'],
+        1: ['A1', '最常用口语'],
+        2: ['A1+', '高频生活词'],
+        3: ['A2', '常见交流词'],
+        4: ['A2+', '扩展日常词'],
+        5: ['B1-', '前 500 词尾段'],
       }
       this.cefr = labels[next][0]
       this.levelLabel = labels[next][1]

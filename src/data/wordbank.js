@@ -1,64 +1,86 @@
-/** Top 高频词分级词库（演示子集，按 L1–L5 分布） */
+/**
+ * 日常口语高频词（OpenSubtitles 2018 英语词频）。
+ * L1–L5 对应词频名次 1–100、101–200、201–300、301–400、401–500。
+ * 每档只收可考查的实词，不含虚词、缩写和脏话。
+ * rank 为该词在口语词表中的名次。
+ */
 export const LEVELS = [
-  { id: 1, key: 'L1', label: '基础日常', cefr: 'Pre-A1', range: '1–100' },
-  { id: 2, key: 'L2', label: '常见生活', cefr: 'A1', range: '101–200' },
-  { id: 3, key: 'L3', label: '进阶日常', cefr: 'A2', range: '201–300' },
-  { id: 4, key: 'L4', label: '场景扩展', cefr: 'A2+', range: '301–400' },
-  { id: 5, key: 'L5', label: '高频进阶', cefr: 'B1-', range: '401–500' },
+  { id: 1, key: 'L1', label: '最常用口语', cefr: 'A1', range: '词频 1–100' },
+  { id: 2, key: 'L2', label: '高频生活词', cefr: 'A1+', range: '词频 101–200' },
+  { id: 3, key: 'L3', label: '常见交流词', cefr: 'A2', range: '词频 201–300' },
+  { id: 4, key: 'L4', label: '扩展日常词', cefr: 'A2+', range: '词频 301–400' },
+  { id: 5, key: 'L5', label: '前 500 词尾段', cefr: 'B1-', range: '词频 401–500' },
 ]
 
 export const WORD_BANK = [
-  // L1
-  { id: 'w1', word: 'hello', meaning: '你好', level: 1, pos: 'int.' },
-  { id: 'w2', word: 'name', meaning: '名字', level: 1, pos: 'n.' },
-  { id: 'w3', word: 'water', meaning: '水', level: 1, pos: 'n.' },
-  { id: 'w4', word: 'eat', meaning: '吃', level: 1, pos: 'v.' },
-  { id: 'w5', word: 'friend', meaning: '朋友', level: 1, pos: 'n.' },
-  { id: 'w6', word: 'school', meaning: '学校', level: 1, pos: 'n.' },
-  { id: 'w7', word: 'happy', meaning: '开心的', level: 1, pos: 'adj.' },
-  { id: 'w8', word: 'today', meaning: '今天', level: 1, pos: 'n./adv.' },
-  // L2
-  { id: 'w9', word: 'breakfast', meaning: '早餐', level: 2, pos: 'n.' },
-  { id: 'w10', word: 'weather', meaning: '天气', level: 2, pos: 'n.' },
-  { id: 'w11', word: 'hobby', meaning: '爱好', level: 2, pos: 'n.' },
-  { id: 'w12', word: 'usually', meaning: '通常', level: 2, pos: 'adv.' },
-  { id: 'w13', word: 'weekend', meaning: '周末', level: 2, pos: 'n.' },
-  { id: 'w14', word: 'library', meaning: '图书馆', level: 2, pos: 'n.' },
-  { id: 'w15', word: 'practice', meaning: '练习', level: 2, pos: 'v./n.' },
-  { id: 'w16', word: 'because', meaning: '因为', level: 2, pos: 'conj.' },
-  // L3
-  { id: 'w17', word: 'confident', meaning: '自信的', level: 3, pos: 'adj.' },
-  { id: 'w18', word: 'schedule', meaning: '日程安排', level: 3, pos: 'n.' },
-  { id: 'w19', word: 'improve', meaning: '提升', level: 3, pos: 'v.' },
-  { id: 'w20', word: 'conversation', meaning: '对话', level: 3, pos: 'n.' },
-  { id: 'w21', word: 'suggest', meaning: '建议', level: 3, pos: 'v.' },
-  { id: 'w22', word: 'environment', meaning: '环境', level: 3, pos: 'n.' },
-  { id: 'w23', word: 'challenge', meaning: '挑战', level: 3, pos: 'n./v.' },
-  { id: 'w24', word: 'memory', meaning: '记忆', level: 3, pos: 'n.' },
-  // L4
-  { id: 'w25', word: 'abstract', meaning: '抽象的', level: 4, pos: 'adj.' },
-  { id: 'w26', word: 'perspective', meaning: '视角/看法', level: 4, pos: 'n.' },
-  { id: 'w27', word: 'responsibility', meaning: '责任', level: 4, pos: 'n.' },
-  { id: 'w28', word: 'opportunity', meaning: '机会', level: 4, pos: 'n.' },
-  { id: 'w29', word: 'celebrate', meaning: '庆祝', level: 4, pos: 'v.' },
-  { id: 'w30', word: 'curious', meaning: '好奇的', level: 4, pos: 'adj.' },
-  { id: 'w31', word: 'community', meaning: '社区', level: 4, pos: 'n.' },
-  { id: 'w32', word: 'encourage', meaning: '鼓励', level: 4, pos: 'v.' },
-  // L5
-  { id: 'w33', word: 'resilience', meaning: '韧性/恢复力', level: 5, pos: 'n.' },
-  { id: 'w34', word: 'empathy', meaning: '共情', level: 5, pos: 'n.' },
-  { id: 'w35', word: 'negotiate', meaning: '协商', level: 5, pos: 'v.' },
-  { id: 'w36', word: 'sustainable', meaning: '可持续的', level: 5, pos: 'adj.' },
-  { id: 'w37', word: 'metaphor', meaning: '隐喻', level: 5, pos: 'n.' },
-  { id: 'w38', word: 'initiative', meaning: '主动性', level: 5, pos: 'n.' },
-  { id: 'w39', word: 'appreciate', meaning: '欣赏/感激', level: 5, pos: 'v.' },
-  { id: 'w40', word: 'collaborate', meaning: '协作', level: 5, pos: 'v.' },
+  // L1 · 词频 1–100
+  { id: 'w1', word: 'know', meaning: '知道', level: 1, rank: 33, pos: 'v.' },
+  { id: 'w2', word: 'like', meaning: '喜欢', level: 1, rank: 43, pos: 'v.' },
+  { id: 'w3', word: 'get', meaning: '得到', level: 1, rank: 45, pos: 'v.' },
+  { id: 'w4', word: 'go', meaning: '去', level: 1, rank: 47, pos: 'v.' },
+  { id: 'w5', word: 'come', meaning: '来', level: 1, rank: 58, pos: 'v.' },
+  { id: 'w6', word: 'want', meaning: '想要', level: 1, rank: 66, pos: 'v.' },
+  { id: 'w7', word: 'think', meaning: '认为', level: 1, rank: 67, pos: 'v.' },
+  { id: 'w8', word: 'see', meaning: '看见', level: 1, rank: 69, pos: 'v.' },
+  { id: 'w9', word: 'good', meaning: '好的', level: 1, rank: 71, pos: 'adj.' },
+  { id: 'w10', word: 'time', meaning: '时间', level: 1, rank: 80, pos: 'n.' },
+  { id: 'w11', word: 'look', meaning: '看', level: 1, rank: 84, pos: 'v.' },
+  { id: 'w12', word: 'take', meaning: '拿', level: 1, rank: 90, pos: 'v.' },
+  // L2 · 词频 101–200
+  { id: 'w13', word: 'people', meaning: '人们', level: 2, rank: 118, pos: 'n.' },
+  { id: 'w14', word: 'because', meaning: '因为', level: 2, rank: 120, pos: 'conj.' },
+  { id: 'w15', word: 'please', meaning: '请', level: 2, rank: 122, pos: 'int.' },
+  { id: 'w16', word: 'love', meaning: '爱', level: 2, rank: 123, pos: 'v./n.' },
+  { id: 'w17', word: 'sorry', meaning: '对不起', level: 2, rank: 127, pos: 'adj.' },
+  { id: 'w18', word: 'help', meaning: '帮助', level: 2, rank: 140, pos: 'v./n.' },
+  { id: 'w19', word: 'day', meaning: '一天', level: 2, rank: 149, pos: 'n.' },
+  { id: 'w20', word: 'work', meaning: '工作', level: 2, rank: 151, pos: 'n./v.' },
+  { id: 'w21', word: 'home', meaning: '家', level: 2, rank: 168, pos: 'n.' },
+  { id: 'w22', word: 'night', meaning: '夜晚', level: 2, rank: 169, pos: 'n.' },
+  { id: 'w23', word: 'money', meaning: '钱', level: 2, rank: 186, pos: 'n.' },
+  { id: 'w24', word: 'name', meaning: '名字', level: 2, rank: 189, pos: 'n.' },
+  // L3 · 词频 201–300（hello / today / friend 在这一档，不在最前 100）
+  { id: 'w25', word: 'hello', meaning: '你好', level: 3, rank: 203, pos: 'int.' },
+  { id: 'w26', word: 'girl', meaning: '女孩', level: 3, rank: 206, pos: 'n.' },
+  { id: 'w27', word: 'house', meaning: '房子', level: 3, rank: 213, pos: 'n.' },
+  { id: 'w28', word: 'mother', meaning: '母亲', level: 3, rank: 226, pos: 'n.' },
+  { id: 'w29', word: 'world', meaning: '世界', level: 3, rank: 228, pos: 'n.' },
+  { id: 'w30', word: 'today', meaning: '今天', level: 3, rank: 232, pos: 'n.' },
+  { id: 'w31', word: 'listen', meaning: '听', level: 3, rank: 233, pos: 'v.' },
+  { id: 'w32', word: 'understand', meaning: '理解', level: 3, rank: 235, pos: 'v.' },
+  { id: 'w33', word: 'remember', meaning: '记得', level: 3, rank: 237, pos: 'v.' },
+  { id: 'w34', word: 'friend', meaning: '朋友', level: 3, rank: 260, pos: 'n.' },
+  { id: 'w35', word: 'family', meaning: '家人', level: 3, rank: 271, pos: 'n.' },
+  { id: 'w36', word: 'happy', meaning: '开心的', level: 3, rank: 296, pos: 'adj.' },
+  // L4 · 词频 301–400（school / eat / water 在这一档）
+  { id: 'w37', word: 'tomorrow', meaning: '明天', level: 4, rank: 316, pos: 'n.' },
+  { id: 'w38', word: 'school', meaning: '学校', level: 4, rank: 328, pos: 'n.' },
+  { id: 'w39', word: 'phone', meaning: '电话', level: 4, rank: 333, pos: 'n.' },
+  { id: 'w40', word: 'problem', meaning: '问题', level: 4, rank: 338, pos: 'n.' },
+  { id: 'w41', word: 'hope', meaning: '希望', level: 4, rank: 346, pos: 'v./n.' },
+  { id: 'w42', word: 'heart', meaning: '心', level: 4, rank: 359, pos: 'n.' },
+  { id: 'w43', word: 'music', meaning: '音乐', level: 4, rank: 366, pos: 'n.' },
+  { id: 'w44', word: 'beautiful', meaning: '美丽的', level: 4, rank: 370, pos: 'adj.' },
+  { id: 'w45', word: 'doctor', meaning: '医生', level: 4, rank: 371, pos: 'n.' },
+  { id: 'w46', word: 'eat', meaning: '吃', level: 4, rank: 373, pos: 'v.' },
+  { id: 'w47', word: 'water', meaning: '水', level: 4, rank: 378, pos: 'n.' },
+  { id: 'w48', word: 'change', meaning: '改变', level: 4, rank: 393, pos: 'v./n.' },
+  // L5 · 词频 401–500
+  { id: 'w49', word: 'easy', meaning: '容易的', level: 5, rank: 408, pos: 'adj.' },
+  { id: 'w50', word: 'different', meaning: '不同的', level: 5, rank: 414, pos: 'adj.' },
+  { id: 'w51', word: 'afraid', meaning: '害怕的', level: 5, rank: 424, pos: 'adj.' },
+  { id: 'w52', word: 'sleep', meaning: '睡觉', level: 5, rank: 425, pos: 'v./n.' },
+  { id: 'w53', word: 'chance', meaning: '机会', level: 5, rank: 426, pos: 'n.' },
+  { id: 'w54', word: 'party', meaning: '聚会', level: 5, rank: 433, pos: 'n.' },
+  { id: 'w55', word: 'important', meaning: '重要的', level: 5, rank: 438, pos: 'adj.' },
+  { id: 'w56', word: 'story', meaning: '故事', level: 5, rank: 441, pos: 'n.' },
+  { id: 'w57', word: 'week', meaning: '星期', level: 5, rank: 450, pos: 'n.' },
+  { id: 'w58', word: 'speak', meaning: '说（某种语言）', level: 5, rank: 472, pos: 'v.' },
+  { id: 'w59', word: 'trouble', meaning: '麻烦', level: 5, rank: 485, pos: 'n.' },
+  { id: 'w60', word: 'question', meaning: '提问', level: 5, rank: 495, pos: 'n.' },
 ]
 
-const DISTRACTORS = [
-  '快乐', '跑步', '城市', '音乐', '家庭', '旅行', '安静', '明亮',
-  '问题', '答案', '故事', '颜色', '动物', '季节', '早晨', '夜晚',
-]
+/** 干扰项只从词库释义里抽，避免无关词把正确答案衬得过显眼 */
 
 function shuffle(arr) {
   const a = [...arr]
@@ -76,9 +98,7 @@ export function wordsByLevel(level) {
 /** 为指定等级生成选择题 */
 export function buildQuestion(word, type = 'meaning') {
   const wrong = shuffle(
-    DISTRACTORS.filter((d) => d !== word.meaning).concat(
-      WORD_BANK.filter((w) => w.id !== word.id).map((w) => w.meaning),
-    ),
+    WORD_BANK.filter((w) => w.id !== word.id && w.meaning !== word.meaning).map((w) => w.meaning),
   ).slice(0, 3)
 
   const options = shuffle([word.meaning, ...wrong]).map((text, i) => ({
@@ -90,6 +110,7 @@ export function buildQuestion(word, type = 'meaning') {
     id: `${word.id}-${type}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     wordId: word.id,
     word: word.word,
+    rank: word.rank,
     level: word.level,
     type,
     prompt:
@@ -120,9 +141,13 @@ export function createAdaptiveSession({ startLevel = 3, maxQuestions = 12 } = {}
 export function nextAdaptiveQuestion(session) {
   if (session.asked >= session.maxQuestions) return null
 
-  let pool = wordsByLevel(session.currentLevel).filter((w) => !session.usedWordIds.has(w.id))
-  if (!pool.length) {
-    pool = WORD_BANK.filter((w) => !session.usedWordIds.has(w.id))
+  // 本档用完时只向相邻档借词，避免测 L1 时突然出现 L5
+  let pool = []
+  for (const delta of [0, -1, 1, -2, 2]) {
+    const level = session.currentLevel + delta
+    if (level < 1 || level > 5) continue
+    pool = wordsByLevel(level).filter((w) => !session.usedWordIds.has(w.id))
+    if (pool.length) break
   }
   if (!pool.length) return null
 
@@ -211,22 +236,22 @@ export function scorePlacement(session) {
 
 export function sampleSpeechForLevel(level) {
   const samples = {
-    1: 'Hi! My name is Yuban. How are you today?',
-    2: 'What do you usually do on the weekend? I like reading.',
-    3: 'I suggest we practice a short conversation about your hobbies.',
-    4: 'From my perspective, small daily talks can really improve your confidence.',
-    5: 'When we collaborate with curiosity, learning becomes more sustainable and fun.',
+    1: 'I want to know you. Do you like this? Come and see.',
+    2: 'Please tell me about your day. Do you love your home?',
+    3: 'Hello! Do you remember your friend? Are you happy today?',
+    4: 'I hope school is not a problem. Do you like music and water?',
+    5: 'Is this question important? Tell me the reason. Do not be afraid.',
   }
   return samples[level] || samples[2]
 }
 
 export function topicsForLevel(level) {
   const map = {
-    1: ['自我介绍', '喜欢的食物', '我的家人'],
-    2: ['周末计划', '天气与心情', '学校生活'],
-    3: ['兴趣爱好', '如何练习英语', '一次小挑战'],
-    4: ['社区与朋友', '责任与习惯', '一次机会'],
-    5: ['共情与理解', '可持续生活', '团队合作'],
+    1: ['你想去哪里', '你看见了什么', '现在几点'],
+    2: ['今天的工作', '家里的夜晚', '请别人帮忙'],
+    3: ['家人和朋友', '今天开不开心', '试着听懂对方'],
+    4: ['学校里的问题', '喜欢的音乐', '明天的计划'],
+    5: ['一件重要的事', '一个小麻烦', '这周的机会'],
   }
   return map[level] || map[2]
 }

@@ -92,7 +92,7 @@ function goHome() {
       <p class="eyebrow">入学测试</p>
       <h1 class="display">用高频词，找到适合你的难度</h1>
       <p class="muted">
-        约 8–12 分钟。题库覆盖日常高频词分级（演示为精简词表）。测完后语伴会按你的水平说话。
+        约 8–12 分钟。题目来自日常口语词频前 500，按名次分成 L1–L5。测完后语伴会按你的水平说话。
       </p>
       <ul class="tips">
         <li v-for="lv in LEVELS" :key="lv.id">
@@ -101,7 +101,7 @@ function goHome() {
       </ul>
       <div class="actions">
         <button class="btn btn-primary" type="button" @click="begin">开始测评</button>
-        <button class="btn btn-ghost" type="button" @click="skip">暂时跳过</button>
+        <button class="btn btn-secondary" type="button" @click="skip">跳过测试</button>
       </div>
     </div>
 
@@ -109,10 +109,14 @@ function goHome() {
       <div class="progress-row">
         <span>进度 {{ session.asked }}/{{ session.maxQuestions }}</span>
         <span>当前探测 L{{ session.currentLevel }}</span>
+        <button class="btn btn-secondary skip-btn" type="button" @click="skip">跳过测试</button>
       </div>
       <div class="bar"><i :style="{ width: progress + '%' }" /></div>
 
-      <p class="q-type">{{ question.type === 'listen' ? '听力选义' : '词汇认读' }}</p>
+      <p class="q-type">
+        {{ question.type === 'listen' ? '听力选义' : '词汇认读' }}
+        · L{{ question.level }} · 词频第 {{ question.rank }} 位
+      </p>
       <h2 class="display q-prompt">{{ question.prompt }}</h2>
 
       <button
@@ -194,10 +198,17 @@ h1 {
 
 .progress-row {
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  gap: 0.75rem;
   font-size: 0.9rem;
   color: var(--ink-muted);
   margin-bottom: 0.5rem;
+}
+
+.skip-btn {
+  padding: 0.45rem 0.9rem;
+  margin-left: auto;
 }
 
 .bar {
