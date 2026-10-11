@@ -5,7 +5,7 @@ import bank from '@/data/scene850.json'
 import { SCENES,localLesson } from '@/data/lessons'
 import { articlePolicy,outputPlan,knownWords } from '@/domain/learning-engine.mjs'
 import { tokens } from '@/domain/progress.mjs'
-import { api } from '@/services/api'
+import { articleConnected, generateArticle } from '@/services/llm'
 import { speakText,stopSpeaking } from '@/services/audio'
 import SceneVisual from '@/components/SceneVisual.vue'
 import LessonText from '@/components/LessonText.vue'
@@ -13,7 +13,7 @@ import PracticePanel from '@/components/PracticePanel.vue'
 const learner=useLearnerStore(),lesson=ref(learner.lesson||localLesson(learner.settings.scene,learner.settings.length)),translation=ref(false),mode=ref(''),index=ref(0),masked=ref(false),generating=ref(false),status=ref(''),listening=ref(false),supports=ref(new Set()),textScore=ref(0),completed=ref(false),guide=ref(!learner.guideSeen),connected=ref(false)
 const plan=computed(()=>outputPlan(learner.workingLevel,learner.settings.scene)),wordCount=computed(()=>tokens(lesson.value.sentences.map(r=>r[0]).join(' ')).length)
 let controller,disposed=false
-onMounted(async()=>{try{connected.value=(await api('status')).articleConnected}catch{};if(!learner.lesson)generate()})
+onMounted(()=>{connected.value=articleConnected();if(!learner.lesson)generate()})
 onBeforeUnmount(()=>{disposed=true;controller?.abort();stopSpeaking()})
 function targets(){const scene=SCENES.find(s=>s.id===learner.settings.scene);return bank.rows.filter(r=>scene.modules.includes(r.source_category)&&!['stable','active'].includes(learner.model.words[r.lookup]?.state)).sort((a,b)=>(learner.model.words[b.lookup]?.clicks||0)-(learner.model.words[a.lookup]?.clicks||0)||a.rank-b.rank).slice(0,3)}
 async function generate(){
@@ -22,7 +22,7 @@ async function generate(){
   const policy=articlePolicy(learner.workingLevel,learner.settings.length,learner.settings.challenge),confirmed=knownWords(learner.model),unknown=Object.entries(learner.model.words).filter(([,r])=>['unknown','learning'].includes(r.state)).map(([w])=>w)
   const inferred=bank.rows.filter(r=>r.rank<=learner.workingLevel&&!unknown.includes(r.lookup)).map(r=>r.lookup)
   const payload={...policy,libraryId:bank.meta.library_id,estimatedKnown:learner.summary.median,workingLevel:learner.workingLevel,scene:learner.settings.scene,outputGoal:plan.value.goal,knownVocabulary:confirmed,inferredVocabulary:inferred,targetVocabulary:targets().map(r=>r.lookup),unknownVocabulary:unknown.slice(0,60),outputGaps:learner.model.outputGaps.filter(g=>!g.resolved).slice(0,5),recentTitles:learner.sessions.slice(0,5).map(s=>s.title)}
-  try{const data=await api('generate-article',payload,controller.signal);if(!disposed){lesson.value={...data,scene:learner.settings.scene,source:'AI个性化生成'};status.value='新文章已准备好';learner.saveLesson(lesson.value)}}catch(e){if(!disposed){lesson.value=localLesson(learner.settings.scene,learner.settings.length,learner.sessions.length);status.value=e.name==='AbortError'?'生成较慢，已提供本地场景课程，可再试一次。':`${e.message} 已提供本地场景课程。`;learner.saveLesson(lesson.value)}}finally{clearTimeout(timeout);generating.value=false;learner.persist()}
+  try{const data=await generateArticle(payload,controller.signal);if(!disposed){lesson.value={...data,scene:learner.settings.scene,source:'AI个性化生成'};status.value='新文章已准备好';learner.saveLesson(lesson.value)}}catch(e){if(!disposed){lesson.value=localLesson(learner.settings.scene,learner.settings.length,learner.sessions.length);status.value=e.name==='AbortError'?'生成较慢，已提供本地场景课程，可再试一次。':`${e.message} 已提供本地场景课程。`;learner.saveLesson(lesson.value)}}finally{clearTimeout(timeout);generating.value=false;learner.persist()}
 }
 function listen(){if(listening.value){stopSpeaking();listening.value=false;return}listening.value=true;speakText(lesson.value.sentences.map(r=>r[0]).join(' '),{onEnd:()=>{listening.value=false;evidence({kind:'listening',words:lesson.value.sentences.map(r=>r[0]).join(' ')})},onError:e=>{listening.value=false;status.value=e}})}
 function evidence({kind,words}){const list=Array.isArray(words)?words:tokens(words);for(const w of new Set(list)){const record=learner.model.words[w];if(!record)continue;learner.evidence(w,{[kind]:1,exposures:1,scene:learner.settings.scene})}}
