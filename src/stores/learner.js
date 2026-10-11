@@ -2,8 +2,9 @@ import { defineStore } from 'pinia'
 import bank from '@/data/scene850.json'
 import { createLearnerModel, recordEvidence, addOutputGap } from '@/domain/learning-engine.mjs'
 import { summarizeWords, progression } from '@/domain/progress.mjs'
+import { getBuddyById, DEFAULT_BUDDY_ID } from '@/data/buddies'
 const KEY = 'yuban-alex-v2'
-const defaults = () => ({ libraryId: bank.meta.library_id, onboardingDone: false, placementDone: false, profile: { name: '', ageGroup: 'child', goal: 'speaking', selfLevel: 'new', dailyMinutes: 15 }, summary: { low: 0, median: 100, high: 250 }, workingLevel: 100, responses: [], model: createLearnerModel(bank.rows), sessions: [], lesson: null, settings: { scene: 'family', length: 'short', challenge: 'just-right' }, articleSerial: 0, guideSeen: false, companionName: 'Alex', storageError: '' })
+const defaults = () => ({ libraryId: bank.meta.library_id, onboardingDone: false, placementDone: false, profile: { name: '', ageGroup: 'child', goal: 'speaking', selfLevel: 'new', dailyMinutes: 15 }, summary: { low: 0, median: 100, high: 250 }, workingLevel: 100, responses: [], model: createLearnerModel(bank.rows), sessions: [], lesson: null, settings: { scene: 'family', length: 'short', challenge: 'just-right' }, articleSerial: 0, guideSeen: false, companionId: DEFAULT_BUDDY_ID, companionName: 'Orbit', storageError: '' })
 function load() {
   try {
     const saved = JSON.parse(localStorage.getItem(KEY) || 'null')
@@ -16,8 +17,14 @@ function load() {
 }
 export const useLearnerStore = defineStore('learner', {
   state: load,
-  getters: { displayName: s => s.profile.name || '朋友', counts: s => summarizeWords(bank.rows, s.model), topics: () => ['家人与生活','自我介绍','学校与朋友','购物','食物','社区','运动','心情','出行'], nextStep: s => progression(s.sessions, s.workingLevel) },
+  getters: { displayName: s => s.profile.name || '朋友', counts: s => summarizeWords(bank.rows, s.model), topics: () => ['家人与生活','自我介绍','学校与朋友','购物','食物','社区','运动','心情','出行'], nextStep: s => progression(s.sessions, s.workingLevel), activeCompanion: s => getBuddyById(s.companionId) },
   actions: {
+    setCompanion(id) {
+      const b = getBuddyById(id)
+      this.companionId = b.id
+      this.companionName = b.name
+      this.persist()
+    },
     persist() { try { localStorage.setItem(KEY, JSON.stringify({ ...this.$state, storageError: '' })); this.storageError = '' } catch { this.storageError = '浏览器存储空间不足，请到“我的”导出学习档案。' } },
     saveOnboarding(form) { this.profile = { ...this.profile, ...form }; this.onboardingDone = true; this.persist() },
     applyPlacement(result) { this.summary = result.summary; this.responses = result.responses; this.model = createLearnerModel(bank.rows, result.responses); this.workingLevel = Math.max(50, result.summary.low); this.placementDone = true; this.lesson = null; this.persist() },

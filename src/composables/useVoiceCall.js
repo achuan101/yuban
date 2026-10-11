@@ -1,7 +1,7 @@
 import { ref, onBeforeUnmount } from 'vue'
 import { speakText, stopSpeaking } from '@/services/audio'
 
-export function useVoiceCall({ onUtterance, onError }) {
+export function useVoiceCall({ onUtterance, onError, getVoiceOptions }) {
   const active = ref(false)
   const phase = ref('idle')
   const live = ref('')
@@ -75,8 +75,10 @@ export function useVoiceCall({ onUtterance, onError }) {
     if (!next) { if (!turnOpen) listen(); return }
     pumping = true
     phase.value = 'speaking'
+    const vOpt = typeof getVoiceOptions === 'function' ? getVoiceOptions() : (getVoiceOptions || {})
     speakText(next, {
-      rate: .92,
+      rate: vOpt?.rate ?? .92,
+      pitch: vOpt?.pitch ?? 1.0,
       onEnd: () => { pumping = false; if (active.value) pump() },
       onError: message => { onError?.(message); pumping = false; if (active.value) pump() },
     })

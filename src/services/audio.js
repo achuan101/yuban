@@ -5,7 +5,7 @@ function preferredVoice(voices, chinese) {
   const english = voices.filter(v => /^en[-_]/i.test(v.lang))
   return english.find(v => /natural|premium|samantha|aria|jenny|google.*english/i.test(v.name)) || english[0] || null
 }
-export function speakText(text, { rate = .85, onEnd, onError, onBoundary } = {}) {
+export function speakText(text, { rate = .85, pitch = 1.0, onEnd, onError, onBoundary } = {}) {
   const synth = globalThis.speechSynthesis
   if (!synth) { onError?.('当前浏览器不支持朗读'); return }
   const token = ++generation
@@ -15,7 +15,7 @@ export function speakText(text, { rate = .85, onEnd, onError, onBoundary } = {})
     if (token !== generation) return
     const voice = preferredVoice(synth.getVoices(), chinese)
     const u = new SpeechSynthesisUtterance(text)
-    u.lang = voice?.lang || (chinese ? 'zh-CN' : 'en-US'); u.voice = voice; u.rate = rate
+    u.lang = voice?.lang || (chinese ? 'zh-CN' : 'en-US'); u.voice = voice; u.rate = rate; u.pitch = pitch
     u.onend = () => { if (token === generation) onEnd?.() }
     u.onerror = e => { if (token === generation && !['canceled', 'interrupted'].includes(e.error)) onError?.('设备朗读没有完成，请重试') }
     u.onboundary = e => { if (token === generation) onBoundary?.(e) }
