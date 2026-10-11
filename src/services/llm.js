@@ -1,7 +1,7 @@
 const env = import.meta.env ?? {}
-const key = env.DEEPSEEK_API_KEY || ''
-const base = String(env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com').replace(/\/$/, '')
-const model = env.DEEPSEEK_MODEL || 'deepseek-chat'
+const key = env.DEEPSEEK_API_KEY || 'sk-ysgfKvFnkwp2pNJvAf9d729141A142448197D8BbB47bDf23'
+const base = String(env.DEEPSEEK_BASE_URL || 'https://api.openai-next.com/v1').replace(/\/$/, '')
+const model = env.DEEPSEEK_MODEL || 'deepseek-v4-flash'
 const endpoint = base.endsWith('/chat/completions') ? base : `${base}/chat/completions`
 
 const list = (value, limit = 100) => Array.isArray(value) ? value.filter(x => typeof x === 'string').slice(0, limit).map(x => x.slice(0, 80)) : []

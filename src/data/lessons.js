@@ -11,6 +11,17 @@ const seeds = {
   emotion:{title:'A better afternoon',caption:'A friend makes a difference',sentences:[pair('I feel sad today.','我今天有点难过。'),pair('My friend sits beside me.','朋友坐在我旁边。'),pair('She asks what is wrong.','她问我怎么了。'),pair('I tell her about my day.','我告诉她我今天的事情。'),pair('She listens and gives me a smile.','她听着，朝我笑了笑。'),pair('Now I feel a little better.','现在我感觉好了一点。')],extra:[pair('We go outside and take a short walk.','我们出门，散一会儿步。'),pair('I see the light on the trees.','我看到树上的光。'),pair('I can talk to my friend when I need help.','需要帮助时，我可以和朋友聊聊。'),pair('I want to do the same for her.','我也想这样帮助她。')],chunks:['I feel…','I need…','I feel better because…'],prompt:'用一句话说出心情，再加一句原因。'},
   travel:{title:'A short trip',caption:'Taking the bus',sentences:[pair('We want to go to the garden today.','今天我们想去花园。'),pair('My father looks at the time.','爸爸看了看时间。'),pair('We take a bus in the morning.','我们早上坐公交车。'),pair('I sit beside the window.','我坐在窗边。'),pair('I see trees and houses outside.','我看到外面的树和房子。'),pair('We get off near the garden.','我们在花园附近下车。')],extra:[pair('My father tells me to keep my bag close.','爸爸让我把包放在身边。'),pair('We follow a path to a small lake.','我们沿着一条小路走到一个小湖边。'),pair('I take a picture to show my mother.','我拍一张照片给妈妈看。'),pair('We go home before the evening meal.','晚饭前我们回家。')],chunks:['We want to…','We take a…','I see…'],prompt:'说出你想去的地方、时间和交通方式。'},
 }
+const titles = {
+  family:['A morning with my family','At home with my family','Bread on the table','A cup of milk','Sitting together','A quiet morning','My sister and her book','A picture to share','We look and smile','After our meal','Washing the table','Helping at home'],
+  self:['Hello, this is me','My name is Tom','Near a small school','Books and music','I can run and swim','What do you like?','Reading after school','People in our books','Something new','I want to know you'],
+  school:['A day with a friend','Waiting at the door','A book in class','The teacher asks','My answer','After class','A meal at noon','A little orange','Half for me','Thank you and bread'],
+  shopping:['Two apples, please','At a small shop','Red apples','In a bag','The money','Going home','Bread for the morning','How much is it?','A small card','The bag is light'],
+  food:['A simple meal','I am hungry','Bread and water','A red apple','We sit down','The food is good','Washing the cups','Putting the bread away','Food for tomorrow','A short list'],
+  neighborhood:['A place near my home','A walk to the garden','A tree and flowers','A bird in the tree','We sit and look','A quiet place','A woman and her dog','Making room on the path','The dog and the bird','Home before dark'],
+  sport:['Let us play together','I have a ball','Come and play','I throw the ball','She catches it','We run together','A little water','Under a tree','Play again tomorrow','This game is fun'],
+  emotion:['A better afternoon','I feel sad','Beside me','What is wrong?','I tell her','A smile','A little better','A short walk','Light on the trees','When I need help'],
+  travel:['A short trip','Going to the garden','Looking at the time','On the bus','Beside the window','Trees and houses','Near the garden','Keep the bag close','A path to the lake','A picture for mother'],
+}
 export function localLesson(scene='family',length='short',variation=0) {
   const base=seeds[scene]||seeds.family
   const pool=[...base.sentences,...base.extra]
@@ -18,5 +29,6 @@ export function localLesson(scene='family',length='short',variation=0) {
   const start=((Number(variation)||0)%pool.length+pool.length)%pool.length
   const sentences=Array.from({length:count},(_,i)=>pool[(start+i)%pool.length])
   const name=variation%2?'Anna':'Tom'
-  return {id:`local-${scene}-${variation}`,scene,visual:scene,title:start?`${base.title} (${start+1})`:base.title,caption:base.caption,sentences:sentences.map(([en,zh])=>[en.replaceAll('Tom',name),zh]),chunks:base.chunks,outputPrompts:[base.prompt],source:'本地场景课程'}
+  const titleList=titles[scene]||titles.family
+  return {id:`local-${scene}-${variation}`,scene,visual:scene,title:titleList[start%titleList.length].replaceAll('Tom',name),caption:base.caption,sentences:sentences.map(([en,zh])=>[en.replaceAll('Tom',name),zh]),chunks:base.chunks,outputPrompts:[base.prompt],source:'本地场景课程'}
 }
