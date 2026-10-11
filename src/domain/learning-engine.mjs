@@ -63,6 +63,24 @@ export function outputPlan(estimatedKnown, scene = "family") {
   return { scene, goal: goals[scene] || "描述眼前的生活场景", ...rung };
 }
 
+export function lessonBasis({ workingLevel, settings = {}, model = {}, sessions = [] } = {}) {
+  const words = Object.entries(model.words || {})
+    .filter(([, record]) => record && (record.state !== "untested" || record.clicks))
+    .map(([word, record]) => `${word}:${record.state}:${record.clicks || 0}`)
+    .sort();
+  const gaps = (model.outputGaps || []).filter((gap) => !gap.resolved).map((gap) => `${gap.word}:${gap.scene || ""}`);
+  const latest = sessions[0];
+  return JSON.stringify({
+    workingLevel,
+    scene: settings.scene,
+    length: settings.length,
+    challenge: settings.challenge,
+    words,
+    gaps,
+    session: latest ? `${latest.id || ""}:${latest.comprehension || ""}:${latest.lessonId || ""}` : "",
+  });
+}
+
 export function articlePolicy(estimatedKnown, lengthChoice = "short", challenge = "just-right") {
   const lengths = { short: estimatedKnown <= 200 ? 45 : 70, medium: estimatedKnown <= 300 ? 90 : 130, long: estimatedKnown <= 500 ? 160 : 230 };
   const ratios = { easier: 3, "just-right": 5, challenge: 10 };

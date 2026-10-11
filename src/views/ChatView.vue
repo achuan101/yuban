@@ -2,6 +2,7 @@
 import { computed, ref, nextTick, onBeforeUnmount } from 'vue'
 import { useLearnerStore } from '@/stores/learner'
 import { coach } from '@/services/llm'
+import { pullSentences } from '@/domain/speakable.mjs'
 import { speakText, stopSpeaking } from '@/services/audio'
 import { useRecording } from '@/composables/useRecording'
 import { useVoiceCall } from '@/composables/useVoiceCall'
@@ -17,6 +18,9 @@ const { recording, error } = mic
 const call = useVoiceCall({ onUtterance: text => send(text), onError: message => { status.value = message } })
 const ideas = ['用简单英语和我聊家人，一次问一个问题', '解释 this is 和 there is 的区别', '写一篇适合我的自我介绍，附中文翻译']
 const phaseText = computed(() => ({ listening: '正在听，说完停一下', thinking: 'Alex 正在想怎么接', speaking: 'Alex 正在说' })[call.phase.value] || '')
+function coachPayload() {
+  return { messages: messages.value.slice(-12), profile: { name: learner.displayName, ageGroup: learner.profile.ageGroup, goal: learner.profile.goal }, estimate: learner.placementDone ? learner.summary : null, scene: learner.settings.scene, needsHelp: learner.model.outputGaps.filter(g => !g.resolved).slice(0, 5).map(g => g.word), voice: call.active.value }
+}
 async function send(spoken) {
   const fromCall = typeof spoken === 'string'
   const text = (fromCall ? spoken : input.value).trim()
@@ -24,23 +28,42 @@ async function send(spoken) {
   if (!fromCall) mic.stop()
   input.value = ''
   messages.value.push({ role: 'user', content: text })
+  const payload = coachPayload()
   busy.value = true
   status.value = call.active.value ? '' : 'Alex正在思考…'
   silentAbort = false
   controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), 25000)
+  let voiceBubble = null
   try {
-    const data = await coach({ messages: messages.value.slice(-12), profile: { name: learner.displayName, ageGroup: learner.profile.ageGroup, goal: learner.profile.goal }, estimate: learner.placementDone ? learner.summary : null, scene: learner.settings.scene, needsHelp: learner.model.outputGaps.filter(g => !g.resolved).slice(0, 5).map(g => g.word), voice: call.active.value }, controller.signal)
-    messages.value.push({ role: 'assistant', content: data.reply })
-    status.value = ''
-    if (silentAbort) { silentAbort = false; return }
-    if (call.active.value) call.speak(data.reply)
+    if (call.active.value) {
+      voiceBubble = { role: 'assistant', content: '' }
+      messages.value.push(voiceBubble)
+      call.startTurn()
+      let pending = ''
+      let spokenCount = 0
+      const take = flush => {
+        const pulled = pullSentences(pending, flush)
+        pending = pulled.rest
+        for (const sentence of pulled.sentences) { if (spokenCount < 2) { spokenCount += 1; call.say(sentence) } }
+      }
+      await coach(payload, controller.signal, delta => { if (silentAbort) return; voiceBubble.content += delta; pending += delta; take(false) })
+      if (silentAbort) return
+      take(true)
+      if (!voiceBubble.content.trim()) throw new Error('AI没有返回有效内容，请重试')
+      status.value = ''
+      call.finishTurn()
+    } else {
+      const data = await coach(payload, controller.signal)
+      messages.value.push({ role: 'assistant', content: data.reply })
+      status.value = ''
+    }
   } catch (e) {
-    if (silentAbort) { status.value = ''; return }
+    if (silentAbort) { if (voiceBubble && !voiceBubble.content.trim()) messages.value.pop(); status.value = ''; return }
     status.value = e.name === 'AbortError' ? '等待超时，可以稍后重试。' : e.message
+    if (call.active.value) { if (voiceBubble && !voiceBubble.content.trim()) messages.value.pop(); call.listen(); return }
     input.value = text
     messages.value.pop()
-    if (call.active.value) call.listen()
   } finally { clearTimeout(timer); busy.value = false; await nextTick(); bottom.value?.scrollIntoView({ block: 'nearest' }) }
 }
 function toggleCall() {

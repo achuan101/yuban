@@ -9,6 +9,9 @@ export function useVoiceCall({ onUtterance, onError }) {
   const supported = Boolean(globalThis.SpeechRecognition || globalThis.webkitSpeechRecognition)
   let recognition = null
   let silenceTimer = 0
+  let queue = []
+  let pumping = false
+  let turnOpen = false
 
   function clearSilence() { clearTimeout(silenceTimer); silenceTimer = 0 }
   function halt() {
@@ -59,15 +62,43 @@ export function useVoiceCall({ onUtterance, onError }) {
   }
   function listen() {
     if (!active.value) return
+    turnOpen = false
+    queue = []
+    pumping = false
     stopSpeaking()
     live.value = ''
     startRecognition()
   }
-  function speak(text) {
-    if (!active.value) return
+  function pump() {
+    if (pumping || !active.value) return
+    const next = queue.shift()
+    if (!next) { if (!turnOpen) listen(); return }
+    pumping = true
     phase.value = 'speaking'
-    live.value = ''
-    speakText(text, { rate: .92, onEnd: () => { if (active.value && phase.value === 'speaking') listen() }, onError: message => { onError?.(message); if (active.value) listen() } })
+    speakText(next, {
+      rate: .92,
+      onEnd: () => { pumping = false; if (active.value) pump() },
+      onError: message => { onError?.(message); pumping = false; if (active.value) pump() },
+    })
+  }
+  function startTurn() {
+    if (!active.value) return
+    queue = []
+    pumping = false
+    turnOpen = true
+    phase.value = 'thinking'
+    stopSpeaking()
+  }
+  function say(sentence) {
+    const text = String(sentence || '').trim()
+    if (!active.value || !turnOpen || !text) return
+    queue.push(text)
+    pump()
+  }
+  function finishTurn() {
+    turnOpen = false
+    if (!active.value || phase.value === 'listening') return
+    if (!pumping && !queue.length) listen()
   }
   function start() {
     if (active.value) return
@@ -80,10 +111,13 @@ export function useVoiceCall({ onUtterance, onError }) {
     active.value = false
     phase.value = 'idle'
     live.value = ''
+    turnOpen = false
+    queue = []
+    pumping = false
     halt()
     stopSpeaking()
   }
   function applyLang() { live.value = ''; if (active.value && phase.value === 'listening') startRecognition() }
   onBeforeUnmount(hangup)
-  return { active, phase, live, lang, supported, start, hangup, listen, speak, applyLang }
+  return { active, phase, live, lang, supported, start, hangup, listen, startTurn, say, finishTurn, applyLang }
 }
