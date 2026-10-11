@@ -3,7 +3,7 @@ import bank from '@/data/scene850.json'
 import { createLearnerModel, recordEvidence, addOutputGap } from '@/domain/learning-engine.mjs'
 import { summarizeWords, progression } from '@/domain/progress.mjs'
 const KEY = 'yuban-alex-v2'
-const defaults = () => ({ libraryId: bank.meta.library_id, onboardingDone: false, placementDone: false, profile: { name: '', ageGroup: 'child', goal: 'speaking', selfLevel: 'new', dailyMinutes: 15 }, summary: { low: 0, median: 100, high: 250 }, workingLevel: 100, responses: [], model: createLearnerModel(bank.rows), sessions: [], lesson: null, settings: { scene: 'family', length: 'short', challenge: 'just-right' }, guideSeen: false, companionName: 'Alex', storageError: '' })
+const defaults = () => ({ libraryId: bank.meta.library_id, onboardingDone: false, placementDone: false, profile: { name: '', ageGroup: 'child', goal: 'speaking', selfLevel: 'new', dailyMinutes: 15 }, summary: { low: 0, median: 100, high: 250 }, workingLevel: 100, responses: [], model: createLearnerModel(bank.rows), sessions: [], lesson: null, settings: { scene: 'family', length: 'short', challenge: 'just-right' }, articleSerial: 0, guideSeen: false, companionName: 'Alex', storageError: '' })
 function load() {
   try {
     const saved = JSON.parse(localStorage.getItem(KEY) || 'null')

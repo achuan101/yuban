@@ -13,7 +13,10 @@ const seeds = {
 }
 export function localLesson(scene='family',length='short',variation=0) {
   const base=seeds[scene]||seeds.family
-  const sentences=length==='short'?base.sentences.slice(0,5):length==='medium'?[...base.sentences,...base.extra.slice(0,3)]:[...base.sentences,...base.extra]
+  const pool=[...base.sentences,...base.extra]
+  const count=length==='short'?5:length==='medium'?Math.min(9,pool.length):pool.length
+  const start=((Number(variation)||0)%pool.length+pool.length)%pool.length
+  const sentences=Array.from({length:count},(_,i)=>pool[(start+i)%pool.length])
   const name=variation%2?'Anna':'Tom'
-  return {id:`local-${scene}-${variation}`,scene,visual:scene,title:base.title,caption:base.caption,sentences:sentences.map(([en,zh])=>[en.replaceAll('Tom',name),zh]),chunks:base.chunks,outputPrompts:[base.prompt],source:'本地场景课程'}
+  return {id:`local-${scene}-${variation}`,scene,visual:scene,title:start?`${base.title} (${start+1})`:base.title,caption:base.caption,sentences:sentences.map(([en,zh])=>[en.replaceAll('Tom',name),zh]),chunks:base.chunks,outputPrompts:[base.prompt],source:'本地场景课程'}
 }

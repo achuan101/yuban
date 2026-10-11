@@ -23,12 +23,12 @@ function httpError(status) {
   return new Error(status === 401 ? 'AI服务凭证无效，请检查密钥。' : status === 402 ? 'AI服务余额不足。' : status === 429 ? 'AI服务繁忙，请稍后重试。' : 'AI服务暂时不可用，请稍后重试。')
 }
 
-async function completion(messages, structured, signal) {
+async function completion(messages, structured, signal, temperature) {
   if (!key) throw new Error('AI服务尚未配置，需要设置 DeepSeek 密钥。')
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
-    body: JSON.stringify({ model, messages, stream: false, max_tokens: structured ? 3000 : 1800, ...(structured ? { response_format: { type: 'json_object' } } : {}) }),
+    body: JSON.stringify({ model, messages, stream: false, max_tokens: structured ? 3000 : 1800, ...(structured ? { response_format: { type: 'json_object' } } : {}), ...(temperature == null ? {} : { temperature }) }),
     signal,
   })
   if (!response.ok) throw httpError(response.status)
@@ -84,8 +84,8 @@ async function completionStream(messages, signal, onDelta) {
 }
 
 export async function generateArticle(body, signal) {
-  const context = { libraryId: String(body.libraryId || '').slice(0, 60), estimatedKnown: Math.max(0, Math.min(850, Number(body.estimatedKnown) || 100)), scene: String(body.scene || 'family').slice(0, 50), outputGoal: String(body.outputGoal || '').slice(0, 120), targetWords: Math.max(40, Math.min(300, Number(body.targetWords) || 70)), challengePercent: Math.max(0, Math.min(15, Number(body.challengePercent) || 5)), knownVocabulary: list(body.knownVocabulary, 850), inferredVocabulary: list(body.inferredVocabulary, 850), targetVocabulary: list(body.targetVocabulary, 5), unknownVocabulary: list(body.unknownVocabulary, 60), recentTitles: list(body.recentTitles, 5) }
-  const raw = await completion([{ role: 'system', content: 'You create natural, child-safe Easy English comprehensible-input lessons. Return ONLY a JSON object: {title,caption,sentences:[[English,Chinese],...],chunks:[short natural phrases],outputPrompts:[Chinese expression task]}. User vocabulary estimate is uncertain, not a whitelist. Prefer observed known words, familiar daily scenes, short natural sentences; introduce only a few supported new words. Inferred vocabulary is unconfirmed and not a difficulty rank. Aim within 20% of targetWords; vary story, action and title from recent lessons. No claims of calibrated CEFR or mastery. Caption must accurately describe the scene. Teach usable language, not word lists.' }, { role: 'user', content: JSON.stringify(context) }], true, signal)
+  const context = { libraryId: String(body.libraryId || '').slice(0, 60), estimatedKnown: Math.max(0, Math.min(850, Number(body.estimatedKnown) || 100)), scene: String(body.scene || 'family').slice(0, 50), outputGoal: String(body.outputGoal || '').slice(0, 120), targetWords: Math.max(40, Math.min(300, Number(body.targetWords) || 70)), challengePercent: Math.max(0, Math.min(15, Number(body.challengePercent) || 5)), knownVocabulary: list(body.knownVocabulary, 850), inferredVocabulary: list(body.inferredVocabulary, 850), targetVocabulary: list(body.targetVocabulary, 5), unknownVocabulary: list(body.unknownVocabulary, 60), recentTitles: list(body.recentTitles, 5), variation: Math.max(1, Math.min(9999, Number(body.variation) || 1)) }
+  const raw = await completion([{ role: 'system', content: 'You create natural, child-safe Easy English comprehensible-input lessons. Return ONLY a JSON object: {title,caption,sentences:[[English,Chinese],...],chunks:[short natural phrases],outputPrompts:[Chinese expression task]}. User vocabulary estimate is uncertain, not a whitelist. Prefer observed known words, familiar daily scenes, short natural sentences; introduce only a few supported new words. Inferred vocabulary is unconfirmed and not a difficulty rank. Aim within 20% of targetWords. The variation number must change the people, place, actions and title. Never reuse a title listed in recentTitles. No claims of calibrated CEFR or mastery. Caption must accurately describe the scene. Teach usable language, not word lists.' }, { role: 'user', content: JSON.stringify(context) }], true, signal, 0.9)
   return validateLesson(raw)
 }
 

@@ -63,7 +63,7 @@ export function outputPlan(estimatedKnown, scene = "family") {
   return { scene, goal: goals[scene] || "描述眼前的生活场景", ...rung };
 }
 
-export function lessonBasis({ workingLevel, settings = {}, model = {}, sessions = [] } = {}) {
+export function lessonBasis({ workingLevel, settings = {}, model = {}, sessions = [], articleSerial = 0 } = {}) {
   const words = Object.entries(model.words || {})
     .filter(([, record]) => record && (record.state !== "untested" || record.clicks))
     .map(([word, record]) => `${word}:${record.state}:${record.clicks || 0}`)
@@ -78,6 +78,7 @@ export function lessonBasis({ workingLevel, settings = {}, model = {}, sessions 
     words,
     gaps,
     session: latest ? `${latest.id || ""}:${latest.comprehension || ""}:${latest.lessonId || ""}` : "",
+    articleSerial,
   });
 }
 
