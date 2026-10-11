@@ -7,7 +7,8 @@ export function validateLesson(raw){
 }
 async function completion(env,messages,structured,fetcher){
  if(!env.DEEPSEEK_API_KEY)throw Object.assign(new Error('AI服务尚未配置，服务器需要设置DeepSeek密钥。'),{status:503})
- const response=await fetcher('https://api.deepseek.com/chat/completions',{method:'POST',headers:{authorization:`Bearer ${env.DEEPSEEK_API_KEY}`,'content-type':'application/json'},body:JSON.stringify({model:env.DEEPSEEK_MODEL||'deepseek-chat',messages,stream:false,max_tokens:structured?3000:1800,...(structured?{response_format:{type:'json_object'}}:{})}),signal:AbortSignal.timeout(18000)})
+ const endpoint=env.DEEPSEEK_BASE_URL?`${env.DEEPSEEK_BASE_URL.replace(/\/$/, '')}/chat/completions`:'https://api.deepseek.com/chat/completions'
+ const response=await fetcher(endpoint,{method:'POST',headers:{authorization:`Bearer ${env.DEEPSEEK_API_KEY}`,'content-type':'application/json','user-agent':'Mozilla/5.0'},body:JSON.stringify({model:env.DEEPSEEK_MODEL||'deepseek-chat',messages,stream:false,max_tokens:structured?3000:1800,...(structured?{response_format:{type:'json_object'}}:{})}),signal:AbortSignal.timeout(18000)})
  if(!response.ok)throw Object.assign(new Error(response.status===401?'AI服务凭证无效，请检查服务器配置。':response.status===402?'AI服务余额不足，请检查服务账户。':response.status===429?'AI服务繁忙，请稍后重试。':'AI服务暂时不可用，请稍后重试。'),{status:502})
  const data=await response.json(),text=data.choices?.[0]?.message?.content
  if(typeof text!=='string'||!text.trim())throw new Error('AI没有返回有效内容，请重试')
