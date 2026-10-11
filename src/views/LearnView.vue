@@ -5,7 +5,7 @@ import bank from '@/data/scene850.json'
 import { SCENES,localLesson } from '@/data/lessons'
 import { articlePolicy,outputPlan,knownWords,lessonBasis } from '@/domain/learning-engine.mjs'
 import { tokens } from '@/domain/progress.mjs'
-import { articleConnected, generateArticle } from '@/services/llm'
+import { checkStatus, generateArticle } from '@/services/llm'
 import { speakText,stopSpeaking } from '@/services/audio'
 import SceneVisual from '@/components/SceneVisual.vue'
 import LessonText from '@/components/LessonText.vue'
@@ -14,7 +14,7 @@ const learner=useLearnerStore(),lesson=ref(learner.lesson||localLesson(learner.s
 const plan=computed(()=>outputPlan(learner.workingLevel,learner.settings.scene)),wordCount=computed(()=>tokens(lesson.value.sentences.map(r=>r[0]).join(' ')).length)
 let controller,disposed=false
 function articleInputs(){return lessonBasis({workingLevel:learner.workingLevel,settings:learner.settings,model:learner.model,sessions:learner.sessions,articleSerial:learner.articleSerial||0})}
-onMounted(()=>{connected.value=articleConnected();if(!learner.lesson||learner.lesson.basis!==articleInputs())generate()})
+onMounted(()=>{checkStatus().then(v=>{if(!disposed)connected.value=v});if(!learner.lesson||learner.lesson.basis!==articleInputs())generate()})
 onBeforeUnmount(()=>{disposed=true;controller?.abort();stopSpeaking()})
 function targets(){const scene=SCENES.find(s=>s.id===learner.settings.scene);return bank.rows.filter(r=>scene.modules.includes(r.source_category)&&!['stable','active'].includes(learner.model.words[r.lookup]?.state)).sort((a,b)=>(learner.model.words[b.lookup]?.clicks||0)-(learner.model.words[a.lookup]?.clicks||0)||a.rank-b.rank).slice(0,3)}
 let requestId=0

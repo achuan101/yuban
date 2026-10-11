@@ -3,6 +3,7 @@ import bank from '@/data/scene850.json'
 import { createLearnerModel, recordEvidence, addOutputGap } from '@/domain/learning-engine.mjs'
 import { summarizeWords, progression } from '@/domain/progress.mjs'
 import { getBuddyById, DEFAULT_BUDDY_ID } from '@/data/buddies'
+import { uuid } from '@/services/uuid'
 const KEY = 'yuban-alex-v2'
 const defaults = () => ({ libraryId: bank.meta.library_id, onboardingDone: false, placementDone: false, profile: { name: '', ageGroup: 'child', goal: 'speaking', selfLevel: 'new', dailyMinutes: 15 }, summary: { low: 0, median: 100, high: 250 }, workingLevel: 100, responses: [], model: createLearnerModel(bank.rows), sessions: [], lesson: null, settings: { scene: 'family', length: 'short', challenge: 'just-right' }, articleSerial: 0, guideSeen: false, companionId: DEFAULT_BUDDY_ID, companionName: 'Orbit', storageError: '' })
 function load() {
@@ -36,7 +37,7 @@ export const useLearnerStore = defineStore('learner', {
       this.persist()
     },
     saveLesson(lesson) { this.lesson = lesson; this.persist() },
-    addSession(summary) { this.sessions.unshift({ id: crypto.randomUUID(), at: new Date().toISOString(), ...summary }); this.sessions = this.sessions.slice(0, 80); this.persist() },
+    addSession(summary) { this.sessions.unshift({ id: uuid(), at: new Date().toISOString(), ...summary }); this.sessions = this.sessions.slice(0, 80); this.persist() },
     advance() { if (this.nextStep.ready) { this.workingLevel = this.nextStep.next; this.persist() } },
     resetAll() { this.$patch(defaults()); this.persist() },
     importArchive(raw) {

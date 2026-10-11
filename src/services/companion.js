@@ -73,7 +73,9 @@ export async function generateCompanionReply({ userText, level, name, constraint
   }
 
   if (constraints?.sentenceLength === 'short') {
-    reply = reply.split(/(?<=[.!?])\s+/)[0]
+    // 取第一个句子（结尾带标点）；不用 lookbehind，保证旧版移动 Safari/WebView 可解析
+    const match = reply.match(/^[\s\S]*?[.!?]/)
+    reply = match ? match[0].trim() : reply.trim()
   }
 
   return reply
