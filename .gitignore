@@ -4,3 +4,9 @@ dist
 *.local
 .vscode/*
 !.vscode/extensions.json
+.env
+.env.*
+!.env.example
+.dev.vars
+.wrangler
+test-results/

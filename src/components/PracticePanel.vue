@@ -1,0 +1,23 @@
+<script setup>
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
+import { useRecording } from '@/composables/useRecording'
+import { speakText, stopSpeaking } from '@/services/audio'
+import { compareText } from '@/domain/progress.mjs'
+const props=defineProps({sentences:Array,mode:String,index:Number,scene:String}),emit=defineEmits(['next','evidence','mask','score'])
+const typed=ref(''),result=ref(null),listening=ref(false),message=ref(''),speed=ref(.85)
+const text=computed(()=>props.mode==='whole'?props.sentences.map(r=>r[0]).join(' '):props.sentences[props.index]?.[0]||'')
+let snapshot=''
+const capture=useRecording(transcript=>{if(snapshot!==text.value)return;result.value=compareText(snapshot,transcript);emit('score',result.value.score);emit('evidence',{kind:'speaking',words:result.value.matched})})
+const {recording,busy,error,audioUrl}=capture
+function listen(){if(listening.value){stopSpeaking();listening.value=false;return}capture.stop();listening.value=true;speakText(text.value,{rate:speed.value,onEnd:()=>{listening.value=false;emit('evidence',{kind:'listening',words:text.value})},onError:e=>{listening.value=false;message.value=e}})}
+function record(){if(recording.value)return capture.stop();stopSpeaking();listening.value=false;result.value=null;snapshot=text.value;capture.start()}
+function check(){result.value=compareText(text.value,typed.value);if(result.value.score>=90)emit('evidence',{kind:'dictation',words:result.value.matched});emit('score',result.value.score)}
+watch(()=>[props.mode,props.index],()=>{capture.reset();stopSpeaking();listening.value=false;typed.value='';result.value=null;message.value='';emit('mask',props.mode==='dictation')},{immediate:true})
+onBeforeUnmount(()=>{stopSpeaking();emit('mask',false)})
+</script>
+<template><section class="practice-inline" aria-label="文章练习"><div class="practice-head"><div><b>{{mode==='dictation'?'边听边写':mode==='whole'?'整篇朗读':'逐句练习'}}</b><span v-if="mode!=='whole'">{{index+1}} / {{sentences.length}}</span></div><label>语速<select v-model.number="speed"><option :value=".7">慢一点</option><option :value=".85">舒适</option><option :value="1">自然</option></select></label></div><p v-if="mode!=='dictation'" class="practice-text reading-font">{{text}}</p><p v-else class="muted">原文和翻译已遮住。听到哪里写到哪里，随时暂停、重听。</p>
+<div class="actions"><button class="btn btn-secondary" @click="listen">{{listening?'暂停领读':'听原声'}}</button><button v-if="mode!=='dictation'" class="btn btn-primary" :disabled="busy" @click="record">{{busy?'等待麦克风…':recording?'停止并检查':'我来朗读'}}</button><button v-if="mode!=='whole'" class="btn btn-secondary" :disabled="recording" @click="emit('next')">下一句</button></div><div v-if="mode==='dictation'" class="dictation"><textarea v-model="typed" rows="3" placeholder="边听边写下这句话…" aria-label="听写输入"/><button class="btn btn-primary" @click="check">检查听写</button></div>
+<p v-if="recording" class="recording" role="status">● 正在录音，读完点“停止并检查”</p><audio v-if="audioUrl" :src="audioUrl" controls aria-label="回听自己的录音"/><p v-if="error||message" class="notice" role="status">{{error||message}}</p>
+<div v-if="result" class="score-result" aria-live="polite"><div><strong :class="{good:result.score>=90}">{{result.score}}</strong><span>{{mode==='dictation'?'听写匹配分':'识别文本匹配分'}}</span></div><p><span v-for="(w,i) in result.words" :key="i" :class="w.ok?'word-ok':'word-missed'">{{w.word}} </span></p><p v-if="result.extras.length" class="muted">额外识别：{{result.extras.join(' ')}}</p></div><p v-if="mode!=='dictation'" class="score-note">当前检查识别文字的完整度。专业发音评分尚未连接；文本匹配分不代表口音得分。</p>
+</section></template>
+<style scoped>.practice-inline{background:#f2f7f3;border-top:1px solid var(--line);padding:25px 28px}.practice-head{display:flex;justify-content:space-between;gap:12px;align-items:center}.practice-head b{font-size:14px}.practice-head span{margin-left:12px;font-size:12px;color:var(--ink-muted)}.practice-head label{font-size:12px;color:var(--ink-muted)}.practice-head select{margin-left:8px;padding:5px 8px}.practice-text{font-size:20px;line-height:1.8;max-height:190px;overflow:auto}.dictation{display:grid;gap:12px;margin-top:20px}.dictation .btn{justify-self:start}.recording{font-size:13px;color:#b9535c}.score-result{border-top:1px solid var(--line);padding-top:20px;margin-top:20px}.score-result>div{display:flex;align-items:baseline;gap:12px}.score-result strong{font-size:35px;font-weight:500;color:#b9535c}.score-result strong.good{color:var(--brand)}.score-result span{font-size:13px}.word-ok{color:var(--brand)}.word-missed{color:var(--danger);text-decoration:underline}.score-note{font-size:11px;color:var(--ink-muted);margin-bottom:0}.practice-inline audio{margin-top:20px}@media(max-width:750px){.practice-inline{padding:20px 16px}.practice-head{flex-wrap:wrap}}</style>
